@@ -39,11 +39,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               gradient: AppColors.goldGradient,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.admin_panel_settings,
-                                color: AppColors.bgDarkNavy, size: 22),
+                            child: const Icon(
+                              Icons.admin_panel_settings,
+                              color: AppColors.bgDarkNavy,
+                              size: 22,
+                            ),
                           ),
                           const SizedBox(width: 12),
-                          Text('Admin Dashboard', style: AppTextStyles.headingMedium),
+                          Text(
+                            'Admin Dashboard',
+                            style: AppTextStyles.headingMedium,
+                          ),
                         ],
                       ),
                     ),
@@ -95,7 +101,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Weekly Sales', style: AppTextStyles.headingSmall.copyWith(fontSize: 13)),
+                            Text(
+                              'Weekly Sales',
+                              style: AppTextStyles.headingSmall.copyWith(
+                                fontSize: 13,
+                              ),
+                            ),
                             const SizedBox(height: 10),
                             Expanded(
                               child: BarChart(
@@ -112,16 +123,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   borderData: FlBorderData(show: false),
                                   gridData: const FlGridData(show: false),
                                   titlesData: FlTitlesData(
-                                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                    leftTitles: const AxisTitles(
+                                      sideTitles: SideTitles(showTitles: false),
+                                    ),
+                                    rightTitles: const AxisTitles(
+                                      sideTitles: SideTitles(showTitles: false),
+                                    ),
+                                    topTitles: const AxisTitles(
+                                      sideTitles: SideTitles(showTitles: false),
+                                    ),
                                     bottomTitles: AxisTitles(
                                       sideTitles: SideTitles(
                                         showTitles: true,
                                         getTitlesWidget: (v, m) {
-                                          const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-                                          return Text(days[v.toInt()],
-                                            style: AppTextStyles.caption.copyWith(fontSize: 10));
+                                          const days = [
+                                            'M',
+                                            'T',
+                                            'W',
+                                            'T',
+                                            'F',
+                                            'S',
+                                            'S',
+                                          ];
+                                          return Text(
+                                            days[v.toInt()],
+                                            style: AppTextStyles.caption
+                                                .copyWith(fontSize: 10),
+                                          );
                                         },
                                       ),
                                     ),
@@ -141,7 +169,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                       child: Row(
                         children: [
-                          Text('Weapon Inventory', style: AppTextStyles.headingSmall),
+                          Text(
+                            'Weapon Inventory',
+                            style: AppTextStyles.headingSmall,
+                          ),
                           const Spacer(),
                           GenshinButton(
                             label: 'Add Weapon',
@@ -157,17 +188,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                   // ── Weapons List ─────────────────────────────────────────
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, i) {
-                        final weapon = provider.allWeapons[i];
-                        return _WeaponRow(
-                          weapon: weapon,
-                          onEdit: () => _showWeaponForm(context, provider, weapon: weapon),
-                          onDelete: () => _showDeleteConfirm(context, provider, weapon),
-                        ).animate(delay: (i * 40).ms).fadeIn().slideX(begin: 0.1, end: 0);
-                      },
-                      childCount: provider.allWeapons.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((ctx, i) {
+                      final weapon = provider.allWeapons[i];
+                      return _WeaponRow(
+                            weapon: weapon,
+                            onEdit: () => _showWeaponForm(
+                              context,
+                              provider,
+                              weapon: weapon,
+                            ),
+                            onDelete: () =>
+                                _showDeleteConfirm(context, provider, weapon),
+                          )
+                          .animate(delay: (i * 40).ms)
+                          .fadeIn()
+                          .slideX(begin: 0.1, end: 0);
+                    }, childCount: provider.allWeapons.length),
                   ),
 
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
@@ -194,7 +230,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  void _showWeaponForm(BuildContext ctx, WeaponProvider provider, {Weapon? weapon}) {
+  void _showWeaponForm(
+    BuildContext ctx,
+    WeaponProvider provider, {
+    Weapon? weapon,
+  }) {
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
@@ -212,33 +252,54 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  void _showDeleteConfirm(BuildContext ctx, WeaponProvider provider, Weapon weapon) {
+  void _showDeleteConfirm(
+    BuildContext ctx,
+    WeaponProvider provider,
+    Weapon weapon,
+  ) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
-        title: Text('Delete Weapon', style: AppTextStyles.headingSmall.copyWith(color: AppColors.error)),
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(
+          'Delete Weapon',
+          style: AppTextStyles.headingSmall.copyWith(color: AppColors.error),
+        ),
         content: RichText(
           text: TextSpan(
             style: AppTextStyles.bodySmall,
             children: [
               const TextSpan(text: 'Are you sure you want to delete '),
-              TextSpan(text: weapon.name,
-                style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700)),
+              TextSpan(
+                text: weapon.name,
+                style: const TextStyle(
+                  color: AppColors.gold,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const TextSpan(text: '? This action cannot be undone.'),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () async {
               await provider.deleteWeapon(weapon.id);
-              if (ctx.mounted) Navigator.pop(ctx);
+              if (dialogCtx.mounted) Navigator.of(dialogCtx).pop();
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -258,11 +319,11 @@ class WeaponFormModal extends StatefulWidget {
 }
 
 class _WeaponFormModalState extends State<WeaponFormModal> {
-  final _nameCtrl    = TextEditingController();
-  final _priceCtrl   = TextEditingController();
-  final _stockCtrl   = TextEditingController();
-  final _atkCtrl     = TextEditingController();
-  final _descCtrl    = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
+  final _stockCtrl = TextEditingController();
+  final _atkCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
   String _selectedType = 'sword';
   bool _isSaving = false;
 
@@ -275,24 +336,31 @@ class _WeaponFormModalState extends State<WeaponFormModal> {
     super.initState();
     if (widget.weapon != null) {
       final w = widget.weapon!;
-      _nameCtrl.text  = w.name;
+      _nameCtrl.text = w.name;
       _priceCtrl.text = w.price.toStringAsFixed(0);
       _stockCtrl.text = w.stock.toString();
-      _atkCtrl.text   = w.attack.toString();
-      _descCtrl.text  = w.description;
-      _selectedType   = w.type.name;
+      _atkCtrl.text = w.attack.toString();
+      _descCtrl.text = w.description;
+      _selectedType = w.type.name;
     }
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose(); _priceCtrl.dispose(); _stockCtrl.dispose();
-    _atkCtrl.dispose(); _descCtrl.dispose();
+    _nameCtrl.dispose();
+    _priceCtrl.dispose();
+    _stockCtrl.dispose();
+    _atkCtrl.dispose();
+    _descCtrl.dispose();
     super.dispose();
   }
 
   bool _validate() {
-    setState(() { _nameError = null; _priceError = null; _stockError = null; });
+    setState(() {
+      _nameError = null;
+      _priceError = null;
+      _stockError = null;
+    });
     bool valid = true;
 
     if (_nameCtrl.text.trim().isEmpty) {
@@ -355,7 +423,8 @@ class _WeaponFormModalState extends State<WeaponFormModal> {
                 // Handle
                 Center(
                   child: Container(
-                    width: 40, height: 4,
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: AppColors.glassBorder,
                       borderRadius: BorderRadius.circular(2),
@@ -397,14 +466,23 @@ class _WeaponFormModalState extends State<WeaponFormModal> {
                         dropdownColor: AppColors.bgCard,
                         underline: const SizedBox.shrink(),
                         style: AppTextStyles.bodyMedium,
-                        icon: const Icon(Icons.arrow_drop_down, color: AppColors.gold),
-                        items: ['sword', 'claymore', 'polearm', 'catalyst', 'bow']
-                            .map((t) => DropdownMenuItem(
-                              value: t,
-                              child: Text(t.substring(0,1).toUpperCase() + t.substring(1),
-                                style: AppTextStyles.bodyMedium),
-                            ))
-                            .toList(),
+                        icon: const Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.gold,
+                        ),
+                        items:
+                            ['sword', 'claymore', 'polearm', 'catalyst', 'bow']
+                                .map(
+                                  (t) => DropdownMenuItem(
+                                    value: t,
+                                    child: Text(
+                                      t.substring(0, 1).toUpperCase() +
+                                          t.substring(1),
+                                      style: AppTextStyles.bodyMedium,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (v) => setState(() => _selectedType = v!),
                       ),
                     ),
@@ -456,8 +534,12 @@ class _WeaponFormModalState extends State<WeaponFormModal> {
                 ),
                 const SizedBox(height: 28),
                 GenshinButton(
-                  label: widget.weapon != null ? 'Save Changes' : 'Create Weapon',
-                  icon: widget.weapon != null ? Icons.save_outlined : Icons.add_circle_outline,
+                  label: widget.weapon != null
+                      ? 'Save Changes'
+                      : 'Create Weapon',
+                  icon: widget.weapon != null
+                      ? Icons.save_outlined
+                      : Icons.add_circle_outline,
                   isLoading: _isSaving,
                   onPressed: _save,
                 ),
@@ -476,7 +558,11 @@ class _WeaponRow extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  const _WeaponRow({required this.weapon, required this.onEdit, required this.onDelete});
+  const _WeaponRow({
+    required this.weapon,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -491,38 +577,61 @@ class _WeaponRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: (weapon.rarity == 5 ? AppColors.rarity5 : AppColors.rarity4).withAlpha(40),
+              color:
+                  (weapon.rarity == 5 ? AppColors.rarity5 : AppColors.rarity4)
+                      .withAlpha(40),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: weapon.rarity == 5 ? AppColors.rarity5 : AppColors.rarity4,
+                color: weapon.rarity == 5
+                    ? AppColors.rarity5
+                    : AppColors.rarity4,
                 width: 0.5,
               ),
             ),
-            child: Icon(Icons.auto_awesome,
+            child: Icon(
+              Icons.auto_awesome,
               color: weapon.rarity == 5 ? AppColors.rarity5 : AppColors.rarity4,
-              size: 20),
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(weapon.name, style: AppTextStyles.labelMedium.copyWith(fontSize: 13),
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('${weapon.typeLabel} • Rp ${weapon.price.toStringAsFixed(0)} • Stock: ${weapon.stock}',
-                  style: AppTextStyles.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  weapon.name,
+                  style: AppTextStyles.labelMedium.copyWith(fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${weapon.typeLabel} • Rp ${weapon.price.toStringAsFixed(0)} • Stock: ${weapon.stock}',
+                  style: AppTextStyles.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.hydro, size: 18),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: AppColors.hydro,
+              size: 18,
+            ),
             onPressed: onEdit,
             tooltip: 'Edit',
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: AppColors.error,
+              size: 18,
+            ),
             onPressed: onDelete,
             tooltip: 'Delete',
           ),
@@ -561,8 +670,19 @@ class _AnalyticCard extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 20),
             const SizedBox(height: 6),
-            Text(value, style: AppTextStyles.headingMedium.copyWith(color: color, fontSize: 22)),
-            Text(label, style: AppTextStyles.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              value,
+              style: AppTextStyles.headingMedium.copyWith(
+                color: color,
+                fontSize: 22,
+              ),
+            ),
+            Text(
+              label,
+              style: AppTextStyles.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
