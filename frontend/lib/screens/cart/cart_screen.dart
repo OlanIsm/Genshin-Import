@@ -8,6 +8,7 @@ import '../../core/constants/app_text_styles.dart';
 import '../../core/providers/cart_provider.dart';
 import '../../core/models/cart_item.dart';
 import '../../widgets/genshin_button.dart';
+import '../../core/services/api_service.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -28,18 +29,27 @@ class CartScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back_ios, color: AppColors.gold),
+                          icon: const Icon(
+                            Icons.arrow_back_ios,
+                            color: AppColors.gold,
+                          ),
                           onPressed: () => context.go('/home'),
                         ),
                         Text('Your Cart', style: AppTextStyles.headingMedium),
                         const Spacer(),
                         if (cart.itemCount > 0)
                           TextButton.icon(
-                            icon: const Icon(Icons.delete_outline,
-                                color: AppColors.error, size: 18),
-                            label: Text('Clear All',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.error)),
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: AppColors.error,
+                              size: 18,
+                            ),
+                            label: Text(
+                              'Clear All',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.error,
+                              ),
+                            ),
                             onPressed: () => _showClearConfirm(ctx, cart),
                           ),
                       ],
@@ -58,11 +68,20 @@ class CartScreen extends StatelessWidget {
                             itemBuilder: (ctx, i) {
                               final item = cart.items[i];
                               return _CartItemCard(
-                                item: item,
-                                onRemove: () => cart.removeItem(item.id),
-                                onIncrease: () => cart.updateQuantity(item.id, item.quantity + 1),
-                                onDecrease: () => cart.updateQuantity(item.id, item.quantity - 1),
-                              ).animate(delay: (i * 60).ms).fadeIn().slideX(begin: -0.1, end: 0);
+                                    item: item,
+                                    onRemove: () => cart.removeItem(item.id),
+                                    onIncrease: () => cart.updateQuantity(
+                                      item.id,
+                                      item.quantity + 1,
+                                    ),
+                                    onDecrease: () => cart.updateQuantity(
+                                      item.id,
+                                      item.quantity - 1,
+                                    ),
+                                  )
+                                  .animate(delay: (i * 60).ms)
+                                  .fadeIn()
+                                  .slideX(begin: -0.1, end: 0);
                             },
                           ),
                   ),
@@ -73,18 +92,26 @@ class CartScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
                         color: AppColors.bgCard,
-                        border: Border(top: BorderSide(color: AppColors.glassBorder)),
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                        border: Border(
+                          top: BorderSide(color: AppColors.glassBorder),
+                        ),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(24),
+                        ),
                       ),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Items (${cart.itemCount})',
-                                  style: AppTextStyles.bodySmall),
-                              Text('Rp ${cart.totalPrice.toStringAsFixed(0)}',
-                                  style: AppTextStyles.bodyMedium),
+                              Text(
+                                'Items (${cart.itemCount})',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                              Text(
+                                'Rp ${cart.totalPrice.toStringAsFixed(0)}',
+                                style: AppTextStyles.bodyMedium,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -92,8 +119,12 @@ class CartScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Shipping', style: AppTextStyles.bodySmall),
-                              Text('Free', style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.success)),
+                              Text(
+                                'Free',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.success,
+                                ),
+                              ),
                             ],
                           ),
                           const Padding(
@@ -104,15 +135,20 @@ class CartScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Total', style: AppTextStyles.headingSmall),
-                              Text('Rp ${cart.totalPrice.toStringAsFixed(0)}',
-                                  style: AppTextStyles.price.copyWith(fontSize: 20)),
+                              Text(
+                                'Rp ${cart.totalPrice.toStringAsFixed(0)}',
+                                style: AppTextStyles.price.copyWith(
+                                  fontSize: 20,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 16),
                           GenshinButton(
                             label: 'Proceed to Checkout',
                             icon: Icons.shopping_bag_outlined,
-                            onPressed: () => _showCheckoutSuccess(context, cart),
+                            onPressed: () =>
+                                _showCheckoutSuccess(context, cart),
                           ),
                         ],
                       ),
@@ -132,23 +168,34 @@ class CartScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 100, height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.glassWhite2,
-              border: Border.all(color: AppColors.glassBorder),
-            ),
-            child: const Icon(Icons.shopping_cart_outlined,
-                color: AppColors.textHint, size: 48),
-          )
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.glassWhite2,
+                  border: Border.all(color: AppColors.glassBorder),
+                ),
+                child: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppColors.textHint,
+                  size: 48,
+                ),
+              )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .scaleXY(begin: 0.95, end: 1.05, duration: 2.seconds),
           const SizedBox(height: 20),
-          Text('Your cart is empty', style: AppTextStyles.headingSmall.copyWith(
-              color: AppColors.textHint)),
+          Text(
+            'Your cart is empty',
+            style: AppTextStyles.headingSmall.copyWith(
+              color: AppColors.textHint,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('Find legendary weapons and add them to your cart',
-              style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
+          Text(
+            'Find legendary weapons and add them to your cart',
+            style: AppTextStyles.bodySmall,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 28),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 60),
@@ -166,31 +213,53 @@ class CartScreen extends StatelessWidget {
   void _showClearConfirm(BuildContext ctx, CartProvider cart) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
+        // <-- tambah dialogCtx di sini
         title: Text('Clear Cart', style: AppTextStyles.headingSmall),
-        content: Text('Remove all items from your cart?',
-            style: AppTextStyles.bodySmall),
+        content: Text(
+          'Remove all items from your cart?',
+          style: AppTextStyles.bodySmall,
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            onPressed: () =>
+                Navigator.of(dialogCtx).pop(), // <-- pakai dialogCtx
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () {
               cart.clearCart();
-              Navigator.pop(ctx);
+              Navigator.of(dialogCtx).pop(); // <-- pakai dialogCtx
             },
-            child: const Text('Clear', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Clear',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showCheckoutSuccess(BuildContext context, CartProvider cart) {
+  void _showCheckoutSuccess(BuildContext context, CartProvider cart) async {
+    // panggil API dulu untuk kurangi stock
+    try {
+      await ApiService.checkout(cart.items.toList());
+    } catch (e) {
+      // tetap lanjut meski gagal
+    }
+
+    final totalPrice = cart.totalPrice;
+
+    if (!context.mounted) return; // safety check setelah async
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      barrierDismissible: false,
+      builder: (dialogCtx) => AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -198,22 +267,29 @@ class CartScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text('Order Placed!', style: AppTextStyles.headingMedium),
             const SizedBox(height: 8),
-            Text('Your weapons will be delivered from Teyvat!',
-                style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
+            Text(
+              'Your weapons will be delivered from Teyvat!',
+              style: AppTextStyles.bodySmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 4),
-            Text('Total: Rp ${cart.totalPrice.toStringAsFixed(0)}',
-                style: AppTextStyles.price),
+            Text(
+              'Total: Rp ${totalPrice.toStringAsFixed(0)}',
+              style: AppTextStyles.price,
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               cart.clearCart();
-              Navigator.pop(context);
+              Navigator.of(dialogCtx).pop();
               context.go('/home');
             },
-            child: Text('Continue Shopping',
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.gold)),
+            child: Text(
+              'Continue Shopping',
+              style: AppTextStyles.labelMedium.copyWith(color: AppColors.gold),
+            ),
           ),
         ],
       ),
@@ -253,9 +329,12 @@ class _CartItemCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: CachedNetworkImage(
               imageUrl: item.imageUrl,
-              width: 70, height: 70, fit: BoxFit.cover,
+              width: 70,
+              height: 70,
+              fit: BoxFit.cover,
               errorWidget: (_, __, ___) => Container(
-                width: 70, height: 70,
+                width: 70,
+                height: 70,
                 color: AppColors.bgCard,
                 child: const Icon(Icons.auto_awesome, color: AppColors.gold),
               ),
@@ -267,19 +346,27 @@ class _CartItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: AppTextStyles.labelMedium,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  item.name,
+                  style: AppTextStyles.labelMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 2),
-                Text('Rp ${item.unitPrice.toStringAsFixed(0)} each',
-                    style: AppTextStyles.caption),
+                Text(
+                  'Rp ${item.unitPrice.toStringAsFixed(0)} each',
+                  style: AppTextStyles.caption,
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     _SmallQtyBtn(icon: Icons.remove, onTap: onDecrease),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('${item.quantity}',
-                          style: AppTextStyles.bodyLarge.copyWith(fontSize: 16)),
+                      child: Text(
+                        '${item.quantity}',
+                        style: AppTextStyles.bodyLarge.copyWith(fontSize: 16),
+                      ),
                     ),
                     _SmallQtyBtn(icon: Icons.add, onTap: onIncrease),
                   ],
@@ -293,11 +380,17 @@ class _CartItemCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.textHint, size: 18),
+                icon: const Icon(
+                  Icons.close,
+                  color: AppColors.textHint,
+                  size: 18,
+                ),
                 onPressed: onRemove,
               ),
-              Text('Rp ${item.totalPrice.toStringAsFixed(0)}',
-                  style: AppTextStyles.price.copyWith(fontSize: 13)),
+              Text(
+                'Rp ${item.totalPrice.toStringAsFixed(0)}',
+                style: AppTextStyles.price.copyWith(fontSize: 13),
+              ),
             ],
           ),
         ],
@@ -316,7 +409,8 @@ class _SmallQtyBtn extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 28, height: 28,
+        width: 28,
+        height: 28,
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.glassBorder),
           borderRadius: BorderRadius.circular(6),

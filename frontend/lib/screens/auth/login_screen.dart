@@ -8,6 +8,8 @@ import '../../core/providers/auth_provider.dart';
 import '../../widgets/genshin_button.dart';
 import '../../widgets/genshin_text_field.dart';
 import '../../widgets/particle_overlay.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -80,10 +82,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Bearer Token Generated ✓',
-                      style: AppTextStyles.labelMedium.copyWith(color: AppColors.gold)),
                     Text(
-                      token.length > 30 ? '${token.substring(0, 30)}...' : token,
+                      'Bearer Token Generated ✓',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.gold,
+                      ),
+                    ),
+                    Text(
+                      token.length > 30
+                          ? '${token.substring(0, 30)}...'
+                          : token,
                       style: AppTextStyles.caption.copyWith(fontSize: 10),
                     ),
                   ],
@@ -93,7 +101,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           backgroundColor: AppColors.bgCard,
           duration: const Duration(seconds: 4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -108,13 +118,65 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _oauthLogin(String provider) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider OAuth — connect to your backend route /api/auth/${provider.toLowerCase()}'),
-        backgroundColor: AppColors.bgCard,
-      ),
-    );
+  Future<void> _oauthLogin(String provider) async {
+    if (provider != 'Google') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$provider OAuth — coming soon!'),
+          backgroundColor: AppColors.bgCard,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account == null) return;
+
+      if (!mounted) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('bearer_token', account.id);
+      await prefs.setString('user_email', account.email);
+      await prefs.setString('user_name', account.displayName ?? 'Traveler');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.verified, color: AppColors.gold, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Google login berhasil: ${account.displayName}',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.gold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.bgCard,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      context.go('/home');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google login gagal: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   @override
@@ -135,95 +197,122 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       // Header
-                      const Icon(Icons.auto_awesome, color: AppColors.gold, size: 40)
-                          .animate().fadeIn(duration: 600.ms).scaleXY(begin: 0.5, end: 1.0),
+                      const Icon(
+                            Icons.auto_awesome,
+                            color: AppColors.gold,
+                            size: 40,
+                          )
+                          .animate()
+                          .fadeIn(duration: 600.ms)
+                          .scaleXY(begin: 0.5, end: 1.0),
                       const SizedBox(height: 12),
-                      Text('Welcome Back', style: AppTextStyles.headingLarge)
-                          .animate().fadeIn(delay: 200.ms),
+                      Text(
+                        'Welcome Back',
+                        style: AppTextStyles.headingLarge,
+                      ).animate().fadeIn(delay: 200.ms),
                       const SizedBox(height: 4),
-                      Text('Sign in to the Teyvat Marketplace',
-                          style: AppTextStyles.bodySmall)
-                          .animate().fadeIn(delay: 300.ms),
+                      Text(
+                        'Sign in to the Teyvat Marketplace',
+                        style: AppTextStyles.bodySmall,
+                      ).animate().fadeIn(delay: 300.ms),
                       const SizedBox(height: 32),
 
                       // Glass card
                       Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: AppColors.glassBorder, width: 1),
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0x1AFFFFFF), Color(0x0DFFFFFF)],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.gold.withAlpha(20),
-                              blurRadius: 30,
-                              spreadRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                GenshinTextField(
-                                  label: 'Email',
-                                  hint: 'traveler@teyvat.com',
-                                  controller: _emailCtrl,
-                                  keyboardType: TextInputType.emailAddress,
-                                  prefixIcon: Icons.email_outlined,
-                                  errorText: _emailError,
-                                  onChanged: (_) => setState(() => _emailError = null),
-                                ),
-                                const SizedBox(height: 20),
-                                GenshinTextField(
-                                  label: 'Password',
-                                  hint: 'Min. 8 characters',
-                                  controller: _passCtrl,
-                                  obscureText: true,
-                                  prefixIcon: Icons.lock_outline,
-                                  errorText: _passError,
-                                  onChanged: (_) => setState(() => _passError = null),
-                                ),
-                                const SizedBox(height: 8),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () {},
-                                    child: Text('Forgot Password?',
-                                      style: AppTextStyles.bodySmall.copyWith(
-                                        color: AppColors.hydro)),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                GenshinButton(
-                                  label: 'Sign In',
-                                  icon: Icons.login,
-                                  onPressed: _login,
-                                  isLoading: isLoading,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: AppColors.glassBorder,
+                                width: 1,
+                              ),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0x1AFFFFFF), Color(0x0DFFFFFF)],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.gold.withAlpha(20),
+                                  blurRadius: 30,
+                                  spreadRadius: 5,
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    GenshinTextField(
+                                      label: 'Email',
+                                      hint: 'traveler@teyvat.com',
+                                      controller: _emailCtrl,
+                                      keyboardType: TextInputType.emailAddress,
+                                      prefixIcon: Icons.email_outlined,
+                                      errorText: _emailError,
+                                      onChanged: (_) =>
+                                          setState(() => _emailError = null),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    GenshinTextField(
+                                      label: 'Password',
+                                      hint: 'Min. 8 characters',
+                                      controller: _passCtrl,
+                                      obscureText: true,
+                                      prefixIcon: Icons.lock_outline,
+                                      errorText: _passError,
+                                      onChanged: (_) =>
+                                          setState(() => _passError = null),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Forgot Password?',
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(color: AppColors.hydro),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    GenshinButton(
+                                      label: 'Sign In',
+                                      icon: Icons.login,
+                                      onPressed: _login,
+                                      isLoading: isLoading,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                          .animate()
+                          .fadeIn(delay: 400.ms)
+                          .slideY(begin: 0.2, end: 0),
 
                       const SizedBox(height: 28),
 
                       // Divider
                       Row(
                         children: [
-                          const Expanded(child: Divider(color: AppColors.glassBorder)),
+                          const Expanded(
+                            child: Divider(color: AppColors.glassBorder),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('or continue with', style: AppTextStyles.caption),
+                            child: Text(
+                              'or continue with',
+                              style: AppTextStyles.caption,
+                            ),
                           ),
-                          const Expanded(child: Divider(color: AppColors.glassBorder)),
+                          const Expanded(
+                            child: Divider(color: AppColors.glassBorder),
+                          ),
                         ],
                       ),
 
@@ -267,16 +356,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Don't have an account? ", style: AppTextStyles.bodySmall),
+                          Text(
+                            "Don't have an account? ",
+                            style: AppTextStyles.bodySmall,
+                          ),
                           GestureDetector(
                             onTap: () => context.go('/register'),
-                            child: Text('Register',
+                            child: Text(
+                              'Register',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.gold,
                                 fontWeight: FontWeight.w700,
                                 decoration: TextDecoration.underline,
                                 decorationColor: AppColors.gold,
-                              )),
+                              ),
+                            ),
                           ),
                         ],
                       ),
