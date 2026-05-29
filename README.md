@@ -1,6 +1,8 @@
 # Genshin Import - Weapon & Artifact Shop
+<img width="620" height="426" alt="image" src="https://github.com/user-attachments/assets/19af9595-ed89-4e91-929b-1d69c35687c9" />
 
 Genshin Import is a catalog and e-commerce application built with Flutter (Frontend), Node.js/Express (Backend), and MySQL (Database) designed to simulate a Weapon and Artifact shop from the game Genshin Impact.
+<img width="402" height="855" alt="image" src="https://github.com/user-attachments/assets/05c0df5f-6c26-4ebe-bb3b-c80395ae7ac2" />
 
 ---
 
