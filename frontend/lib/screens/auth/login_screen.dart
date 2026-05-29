@@ -131,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: '368893081990-9q32k5omh8hd04ck2l876j2vubk2uvpk.apps.googleusercontent.com',
         scopes: ['email', 'profile'],
       );
 
@@ -139,35 +140,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('bearer_token', account.id);
-      await prefs.setString('user_email', account.email);
-      await prefs.setString('user_name', account.displayName ?? 'Traveler');
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.loginWithGoogle(
+        account.email,
+        account.displayName ?? 'Traveler',
+        account.id,
+      );
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.verified, color: AppColors.gold, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Google login berhasil: ${account.displayName}',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.gold,
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.verified, color: AppColors.gold, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Google login berhasil: ${account.displayName}',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.gold,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            backgroundColor: AppColors.bgCard,
+            duration: const Duration(seconds: 3),
           ),
-          backgroundColor: AppColors.bgCard,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
-      context.go('/home');
+        );
+        context.go('/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.errorMessage ?? 'Google login gagal'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

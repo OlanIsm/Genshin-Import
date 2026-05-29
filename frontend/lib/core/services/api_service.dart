@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/weapon.dart';
@@ -10,7 +11,9 @@ import '../../data/mock_data.dart';
 /// API Service — pre-wired to backend at [baseUrl].
 /// Set [useMock] to false when the real backend is running.
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static final String baseUrl = kIsWeb
+      ? 'http://localhost:3000/api'
+      : 'http://10.0.2.2:3000/api';
   static const bool useMock = false;
 
   // ── Auth Header ────────────────────────────────────────────────────────────
@@ -171,6 +174,33 @@ class ApiService {
   }
 
   // ── User ───────────────────────────────────────────────────────────────────
+  static Future<Map<String, dynamic>> loginWithGoogle(String email, String username, String googleId) async {
+    if (useMock) {
+      return {
+        'success': true,
+        'token': 'mock_google_token_$googleId',
+        'user': {
+          'id': 999,
+          'username': username,
+          'email': email,
+          'role': 'user',
+        }
+      };
+    }
+
+    final res = await http.post(
+      Uri.parse('$baseUrl/auth/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'username': username,
+        'googleId': googleId,
+      }),
+    );
+
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
   static Future<AppUser> getProfile() async {
     if (useMock) return MockData.currentUser;
     final headers = await _authHeaders();

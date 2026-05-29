@@ -81,6 +81,47 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+app.post('/api/auth/google', async (req, res) => {
+    const { email, username, googleId } = req.body;
+    try {
+        const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        let token;
+        let user;
+
+        if (users.length > 0) {
+            token = crypto.randomBytes(16).toString('hex');
+            await pool.query('UPDATE users SET token = ? WHERE id = ?', [token, users[0].id]);
+            user = {
+                id: users[0].id,
+                username: users[0].username,
+                email: users[0].email,
+                role: users[0].role || 'user'
+            };
+        } else {
+            token = crypto.randomBytes(16).toString('hex');
+            const [result] = await pool.query(
+                'INSERT INTO users (username, email, password, token, role) VALUES (?, ?, ?, ?, ?)',
+                [username || 'Traveler', email, 'oauth_google_password', token, 'user']
+            );
+            user = {
+                id: result.insertId,
+                username: username || 'Traveler',
+                email: email,
+                role: 'user'
+            };
+        }
+
+        res.status(200).json({
+            success: true,
+            token: token,
+            user: user
+        });
+    } catch (error) {
+        console.error("Kesalahan OAuth Google:", error);
+        res.status(500).json({ success: false, message: "Terjadi kesalahan server." });
+    }
+});
+
 app.get('/api/weapons', async (req, res) => {
     try {
         const [weapons] = await pool.query('SELECT * FROM weapons');
@@ -269,6 +310,7 @@ app.post('/api/weapons', async (req, res) => {
     try {
         const [users] = await pool.query('SELECT role FROM users WHERE token = ?', [token]);
         if (users.length === 0) return res.status(403).json({ message: "Token tidak valid" });
+        if (users[0].role !== 'admin') return res.status(403).json({ message: "Akses ditolak: Anda bukan admin" });
 
         const { name, type, element, rarity, price, stock, description, image_url, attack, crit_rate } = req.body;
 
@@ -298,6 +340,7 @@ app.put('/api/weapons/:id', async (req, res) => {
     try {
         const [users] = await pool.query('SELECT role FROM users WHERE token = ?', [token]);
         if (users.length === 0) return res.status(403).json({ message: "Token tidak valid" });
+        if (users[0].role !== 'admin') return res.status(403).json({ message: "Akses ditolak: Anda bukan admin" });
 
         const { name, type, element, rarity, price, stock, description, image_url, attack, crit_rate } = req.body;
         const weaponId = req.params.id;
@@ -330,6 +373,7 @@ app.delete('/api/weapons/:id', async (req, res) => {
     try {
         const [users] = await pool.query('SELECT role FROM users WHERE token = ?', [token]);
         if (users.length === 0) return res.status(403).json({ message: "Token tidak valid" });
+        if (users[0].role !== 'admin') return res.status(403).json({ message: "Akses ditolak: Anda bukan admin" });
 
         const weaponId = req.params.id;
         const [existing] = await pool.query('SELECT id FROM weapons WHERE id = ?', [weaponId]);

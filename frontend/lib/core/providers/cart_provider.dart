@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/cart_item.dart';
 import '../models/weapon.dart';
+import '../models/artifact.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
@@ -26,6 +27,25 @@ class CartProvider extends ChangeNotifier {
       _items.add(CartItem(
         id: _uuid.v4(), weapon: weapon,
         quantity: quantity.clamp(1, weapon.stock),
+      ));
+    }
+    notifyListeners();
+  }
+
+  void addArtifact(Artifact artifact, int quantity) {
+    final existingIdx = _items.indexWhere(
+      (item) => item.artifact?.id == artifact.id,
+    );
+    if (existingIdx != -1) {
+      final existing = _items[existingIdx];
+      final newQty = (existing.quantity + quantity).clamp(1, artifact.stock);
+      _items[existingIdx] = CartItem(
+        id: existing.id, artifact: artifact, quantity: newQty,
+      );
+    } else {
+      _items.add(CartItem(
+        id: _uuid.v4(), artifact: artifact,
+        quantity: quantity.clamp(1, artifact.stock),
       ));
     }
     notifyListeners();

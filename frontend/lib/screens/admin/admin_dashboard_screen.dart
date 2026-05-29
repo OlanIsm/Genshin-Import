@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/providers/weapon_provider.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../core/models/weapon.dart';
 import '../../widgets/genshin_button.dart';
 import '../../widgets/genshin_text_field.dart';
@@ -19,6 +20,44 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    if (!auth.isAdmin) {
+      return Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(gradient: AppColors.bgGradient),
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.gold,
+                      size: 80,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Akses Ditolak',
+                      style: AppTextStyles.headingMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Halaman ini hanya dapat diakses oleh Administrator. Silakan login sebagai Admin di database.',
+                      style: AppTextStyles.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.bgGradient),

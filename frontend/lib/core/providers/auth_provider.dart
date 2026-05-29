@@ -115,6 +115,41 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> loginWithGoogle(String email, String username, String googleId) async {
+    _status = AuthStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await ApiService.loginWithGoogle(email, username, googleId);
+      if (response['success'] == true) {
+        _token = response['token'] as String;
+        final userData = response['user'] as Map<String, dynamic>;
+        _user = AppUser.fromJson({...userData, 'token': _token});
+
+        // Persist token and user info
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('bearer_token', _token!);
+        await prefs.setString('user_email', email);
+        await prefs.setString('user_name', _user!.username);
+
+        _status = AuthStatus.authenticated;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = response['message'] as String? ?? 'Google login failed';
+        _status = AuthStatus.error;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Connection error. Please try again.';
+      _status = AuthStatus.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearError() {
     _errorMessage = null;
     if (_status == AuthStatus.error) {

@@ -9,6 +9,7 @@ import '../../core/constants/app_text_styles.dart';
 import '../../core/providers/weapon_provider.dart';
 import '../../core/providers/cart_provider.dart';
 import '../../core/models/weapon.dart';
+import '../../core/models/artifact.dart';
 import '../../widgets/weapon_card.dart';
 import '../../widgets/genshin_button.dart';
 
@@ -475,7 +476,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'Buy',
                   width: 70,
                   height: 36,
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<CartProvider>().addArtifact(a, 1);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${a.name} added to cart!',
+                          style: AppTextStyles.bodySmall),
+                        backgroundColor: AppColors.bgCard,
+                        duration: const Duration(seconds: 2),
+                        action: SnackBarAction(
+                          label: 'View Cart',
+                          textColor: AppColors.gold,
+                          onPressed: () => context.go('/cart'),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
