@@ -9,6 +9,7 @@ import '../../core/providers/cart_provider.dart';
 import '../../core/models/cart_item.dart';
 import '../../widgets/genshin_button.dart';
 import '../../core/services/api_service.dart';
+import '../../data/mock_data.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -282,6 +283,18 @@ class CartScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
+              for (final item in cart.items) {
+                final name = item.weapon?.name ?? item.artifact?.name ?? 'Unknown Item';
+                final price = item.unitPrice;
+                final qty = item.quantity;
+                final date = DateTime.now().toString().split(' ').first;
+                MockData.purchaseHistory.insert(0, {
+                  'name': name,
+                  'date': date,
+                  'price': price,
+                  'qty': qty,
+                });
+              }
               cart.clearCart();
               Navigator.of(dialogCtx).pop();
               context.go('/home');

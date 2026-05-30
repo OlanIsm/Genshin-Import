@@ -15,11 +15,13 @@ import 'screens/cart/cart_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/profile/profile_screen.dart';
 
+final authProvider = AuthProvider();
+
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WeaponProvider()),
       ],
@@ -44,6 +46,25 @@ class GenshinImportApp extends StatelessWidget {
 
 final GoRouter _router = GoRouter(
   initialLocation: '/splash',
+  refreshListenable: authProvider,
+  redirect: (context, state) {
+    final loggingIn = state.matchedLocation == '/login';
+    final registering = state.matchedLocation == '/register';
+    final splashing = state.matchedLocation == '/splash';
+
+    final isLoggedIn = authProvider.isAuthenticated;
+
+    if (!isLoggedIn) {
+      if (!loggingIn && !registering && !splashing) {
+        return '/login';
+      }
+    } else {
+      if (loggingIn || registering || splashing) {
+        return '/home';
+      }
+    }
+    return null;
+  },
   routes: [
     // ── No-shell routes ────────────────────────────────────────────────
     GoRoute(
